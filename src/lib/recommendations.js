@@ -46,6 +46,7 @@ export function computeRecommendations(items, purchases) {
 
     let urgency;
     if (pctElapsed >= 1.1) urgency = 'overdue';
+    else if (pctElapsed >= 0.95) urgency = 'today';
     else if (pctElapsed >= 0.8) urgency = 'due-soon';
     else if (pctElapsed >= 0.6) urgency = 'upcoming';
     else continue; // not near due yet
@@ -63,7 +64,7 @@ export function computeRecommendations(items, purchases) {
   }
 
   // Sort: overdue first, then due-soon, then upcoming; within each by most elapsed %
-  const order = { overdue: 0, 'due-soon': 1, upcoming: 2 };
+  const order = { overdue: 0, today: 1, 'due-soon': 2, upcoming: 3 };
   return recommendations.sort((a, b) => {
     const uo = order[a.urgency] - order[b.urgency];
     if (uo !== 0) return uo;
