@@ -8,8 +8,11 @@ import { CATEGORIES, UNITS } from '../lib/recommendations';
  */
 function parseVoiceText(text) {
   const raw = text.toLowerCase().trim();
-  // Split on commas, "and", newlines
-  const parts = raw.split(/,|\band\b|\n/).map(p => p.trim()).filter(Boolean);
+  // Split on commas, next, then, also, and then, newlines
+  const parts = raw
+    .split(/,|\bnext\b|\bthen\b|\balso\b|\band then\b|\bafter that\b|\bdone\b|\n/)
+    .map(p => p.trim())
+    .filter(Boolean);
 
   return parts.map(part => {
     const item = { name: '', quantity: 1, unit: 'pcs', raw: part };
@@ -176,8 +179,9 @@ export default function VoicePage({ items, logPurchase, addItem }) {
           {listening ? 'Listening… tap to stop' : 'Tap to speak your grocery list'}
         </div>
         {listening && (
-          <div style={{ fontSize: '.78rem', color: 'var(--text3)', textAlign: 'center', maxWidth: 280 }}>
-            Say items naturally: <em>"Milk 1 litre, bread 2, eggs dozen, onions 500g"</em>
+          <div style={{ fontSize: '.78rem', color: 'var(--text3)', textAlign: 'center', maxWidth: 300 }}>
+            Say items with <strong style={{color:'var(--text2)'}}>next</strong> or <strong style={{color:'var(--text2)'}}>then</strong> between them:<br/>
+            <em>"Milk 1 litre next bread 2 then eggs dozen next onions 500g"</em>
           </div>
         )}
       </div>
@@ -185,7 +189,14 @@ export default function VoicePage({ items, logPurchase, addItem }) {
       {/* Live transcript */}
       {(transcript || listening) && (
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px' }}>
-          <div style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '.4px' }}>Transcript</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <div style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '.4px' }}>Transcript</div>
+            {transcript && (
+              <div style={{ fontSize: '.7rem', color: 'var(--accent)', fontWeight: 600 }}>
+                ~{parseVoiceText(transcript).length} item{parseVoiceText(transcript).length !== 1 ? 's' : ''} detected
+              </div>
+            )}
+          </div>
           <div style={{ fontSize: '.85rem', color: 'var(--text)', lineHeight: 1.5, minHeight: 40 }}>
             {transcript || <span style={{ color: 'var(--text3)', fontStyle: 'italic' }}>Waiting for speech…</span>}
           </div>
